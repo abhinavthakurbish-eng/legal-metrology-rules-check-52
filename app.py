@@ -23,9 +23,16 @@ from reports.annotate import create_annotated_image
 from database import db
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
-REPORTS_FOLDER = os.path.join(BASE_DIR, "generated_reports")
-ANNOTATED_FOLDER = os.path.join(BASE_DIR, "static", "annotated")
+
+if os.environ.get("VERCEL") or not os.access(BASE_DIR, os.W_OK):
+    UPLOAD_FOLDER = "/tmp/uploads"
+    REPORTS_FOLDER = "/tmp/generated_reports"
+    ANNOTATED_FOLDER = "/tmp/annotated"
+else:
+    UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
+    REPORTS_FOLDER = os.path.join(BASE_DIR, "generated_reports")
+    ANNOTATED_FOLDER = os.path.join(BASE_DIR, "static", "annotated")
+
 SAMPLES_FOLDER = os.path.join(BASE_DIR, "static", "samples")
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)

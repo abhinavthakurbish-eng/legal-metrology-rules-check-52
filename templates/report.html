@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inspection Studio #{{ scan.id }} - Legal Metrology Division</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="/" class="nav-brand">
+      <span class="emblem">⚖️</span>
+      <div>
+        <div class="nav-title">DIRECTORATE OF LEGAL METROLOGY</div>
+        <div class="nav-subtitle">Packaging Compliance & Statutory Audit Studio</div>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="/" class="nav-link">New Scan</a>
+      <a href="/dashboard" class="nav-link">Audit Records</a>
+      <a href="/rules" class="nav-link">Statutory Rules & Benchmarks</a>
+    </div>
+  </nav>
+
+  <div class="container">
+
+    <!-- Top Action Bar -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 12px;">
+      <div>
+        <a href="/dashboard" style="color: var(--accent); text-decoration: none; font-size: 0.88rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+          ← Back to Audit Register
+        </a>
+        <h1 style="font-size: 1.6rem; color: var(--primary); font-weight: 800; margin-top: 4px;">
+          {{ scan.product_name }}
+        </h1>
+        <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; gap: 12px; flex-wrap: wrap; margin-top: 4px;">
+          <span><b>Case Ref:</b> {{ scan.reference_no or 'LM-INSP-2026-000' + scan.id|string }}</span>
+          <span>•</span>
+          <span><b>Category:</b> {{ scan.product_category or 'General FMCG' }}</span>
+          <span>•</span>
+          <span><b>Audited:</b> {{ scan.created_at }} IST</span>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 10px;">
+        <a href="/report/{{ scan.id }}/pdf" class="btn btn-success" target="_blank" style="box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);">
+          <span>📄 Export Statutory Inspection Memo (PDF)</span>
+        </a>
+        <a href="/" class="btn btn-outline">
+          <span>+ New Audit</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Executive Scorecard Banner -->
+    <div class="score-banner">
+      <div>
+        <div style="font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 800; opacity: 0.85;">
+          OFFICIAL STATUTORY ENFORCEMENT VERDICT
+        </div>
+        <div style="font-size: 1.45rem; font-weight: 900; margin-top: 4px; display: flex; align-items: center; gap: 8px;">
+          {% if compliance.overall_status == 'COMPLIANT' %}
+            <span style="color: var(--success);">✓</span> {{ compliance.statutory_verdict }}
+          {% elif compliance.overall_status == 'PARTIAL_COMPLIANCE' %}
+            <span style="color: var(--warning);">⚠️</span> {{ compliance.statutory_verdict }}
+          {% else %}
+            <span style="color: var(--danger);">✗</span> {{ compliance.statutory_verdict }}
+          {% endif %}
+        </div>
+        <div style="font-size: 0.88rem; opacity: 0.9; margin-top: 6px;">
+          <b>Clauses Audited:</b> {{ compliance.total_rules }} Total • 
+          <span style="color: #6ee7b7; font-weight: 700;">{{ compliance.compliant_count }} Passed</span> • 
+          <span style="color: #fde68a; font-weight: 700;">{{ compliance.partial_count }} Partial</span> • 
+          <span style="color: #fca5a5; font-weight: 700;">{{ compliance.violations_count }} Violations</span>
+        </div>
+      </div>
+
+      <div class="score-circle {% if compliance.overall_status == 'PARTIAL_COMPLIANCE' %}warn{% elif compliance.overall_status == 'NON_COMPLIANT' %}fail{% endif %}">
+        <div class="score-num">{{ compliance.compliance_score }}%</div>
+        <div class="score-sub">LMPC Index</div>
+      </div>
+    </div>
+
+    <!-- Split-Screen Interactive Inspection Studio -->
+    <div class="studio-layout">
+
+      <!-- Left Column: Interactive Packaging Canvas & Evidence Plate -->
+      <div class="card canvas-card" style="padding: 1.25rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--primary);">
+            Annexure A: Evidence Plate & Annotations
+          </h3>
+          <span class="badge badge-info" id="activeSideLabel">Exhibit 1 (Side 1)</span>
+        </div>
+
+        <div class="canvas-viewer">
+          {% for img in images %}
+            <img 
+              id="exhibit-img-{{ loop.index }}"
+              src="{{ url_for('static', filename='annotated/' + img.filename) if img.annotated else url_for('serve_upload', filename=img.filename) }}" 
+              alt="Side {{ img.side_num }}" 
+              class="canvas-img"
+              style="{% if not loop.first %}display: none;{% endif %}"
+            >
+          {% endfor %}
+        </div>
+
+        <!-- Canvas Side Switcher Tabs -->
+        <div class="canvas-tabs">
+          {% for img in images %}
+            <button 
+              class="canvas-tab-btn {% if loop.first %}active{% endif %}" 
+              onclick="switchExhibit({{ loop.index }}, 'Exhibit {{ loop.index }} (Side {{ img.side_num }})')"
+            >
+              📷 Side {{ img.side_num }} {% if img.annotated %}• Annotated{% endif %}
+            </button>
+          {% endfor %}
+        </div>
+
+        <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 10px; text-align: center;">
+          💡 Green boxes indicate verified declarations; orange indicates partial text; red indicates missing mandatory clauses.
+        </div>
+      </div>
+
+      <!-- Right Column: Statutory Clause Cards & Human-in-the-Loop Review -->
+      <div>
+        
+        <!-- Filter Bar -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+          <div style="font-weight: 700; font-size: 1.05rem; color: var(--primary);">
+            Statutory Clause Audit Breakdown
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <button class="btn btn-outline" style="padding: 4px 10px; font-size: 0.78rem;" onclick="filterClauses('all')">All ({{ compliance.total_rules }})</button>
+            <button class="btn btn-outline" style="padding: 4px 10px; font-size: 0.78rem; color: var(--success);" onclick="filterClauses('COMPLIANT')">Passed ({{ compliance.compliant_count }})</button>
+            <button class="btn btn-outline" style="padding: 4px 10px; font-size: 0.78rem; color: var(--warning);" onclick="filterClauses('PARTIAL_COMPLIANCE')">Partial ({{ compliance.partial_count }})</button>
+            <button class="btn btn-outline" style="padding: 4px 10px; font-size: 0.78rem; color: var(--danger);" onclick="filterClauses('NON_COMPLIANT')">Violations ({{ compliance.violations_count }})</button>
+          </div>
+        </div>
+
+        <!-- Clause Cards List -->
+        <div class="clause-list">
+          {% for item in compliance.results %}
+          <div class="clause-card {% if item.status == 'COMPLIANT' %}compliant{% elif item.status == 'PARTIAL_COMPLIANCE' %}partial{% else %}violation{% endif %}" data-status="{{ item.status }}">
+            <div class="clause-header">
+              <div>
+                <span class="clause-code">{{ item.rule_code }}</span>
+                <span class="clause-name">• {{ item.rule_name }}</span>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">{{ item.statutory_reference }}</div>
+              </div>
+              <div>
+                {% if item.status == 'COMPLIANT' %}
+                  <span class="badge badge-success">✓ PASS</span>
+                {% elif item.status == 'PARTIAL_COMPLIANCE' %}
+                  <span class="badge badge-warning">⚠ PARTIAL</span>
+                {% else %}
+                  <span class="badge badge-danger">✗ VIOLATION</span>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="clause-value">
+              <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Detected on Label:</span><br/>
+              {{ item.detected_value }}
+            </div>
+
+            {% if item.details %}
+              <div style="font-size: 0.8rem; color: #475569; margin-bottom: 4px;">
+                {{ item.details }}
+              </div>
+            {% endif %}
+
+            <div class="clause-remarks">
+              <b>Officer Finding:</b> {{ item.deficiency_remarks }}
+            </div>
+
+            {% if item.penalty_clause %}
+              <div class="clause-penalty">
+                <b>Statutory Penalty:</b> {{ item.penalty_clause }}
+              </div>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- Human-in-the-Loop Review & Officer Notes (Solves Core Literature Limitation) -->
+        <div class="card" style="margin-top: 1.5rem; background: #f8fafc;">
+          <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--primary); margin-bottom: 6px;">
+            ✍️ Human-in-the-Loop Officer Annotation & Regulatory Override
+          </h3>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">
+            As identified across compliance platforms (Product Label Guru / ComplAi), automated checks can be supplemented with inspecting officer remarks:
+          </p>
+
+          <form action="/report/{{ scan.id }}/update-notes" method="POST">
+            <textarea 
+              name="officer_notes" 
+              rows="3" 
+              placeholder="Enter inspecting officer field observations, compounding remarks, or manual overrides here..."
+              style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--border); font-size: 0.88rem; font-family: inherit;"
+            >{{ scan.officer_notes or '' }}</textarea>
+            <div style="display: flex; justify-content: flex-end; margin-top: 8px;">
+              <button type="submit" class="btn btn-outline" style="padding: 6px 14px; font-size: 0.82rem;">
+                Save Officer Observation
+              </button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Scanned OCR Text & 1-Click Re-Audit Studio (Instant Human-in-the-Loop Feedback) -->
+    <div class="card" style="margin-bottom: 2rem; border-left: 4px solid var(--accent); background: #ffffff;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+        <div>
+          <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 6px;">
+            📝 Scanned Package Declarations (OCR Text Stream) & 1-Click Re-Audit
+          </h3>
+          <p style="font-size: 0.84rem; color: var(--text-muted); margin-top: 2px;">
+            Review the text extracted by the multi-pass OCR engine. If any character was unclear due to lighting or camera angle, edit below and click <b>Re-Evaluate Rules</b> for an instant 0.1s update!
+          </p>
+        </div>
+        <span class="badge badge-info">⚡ Live Re-Audit Studio</span>
+      </div>
+
+      <form action="/report/{{ scan.id }}/re-audit" method="POST">
+        <textarea 
+          name="scanned_text" 
+          rows="6" 
+          style="width: 100%; padding: 0.85rem; border-radius: 8px; border: 1px solid var(--border); font-family: monospace; font-size: 0.88rem; line-height: 1.45; background: #f8fafc; resize: vertical;"
+          placeholder="Paste or edit product label text here..."
+        >{{ raw_ocr_text }}</textarea>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; flex-wrap: wrap; gap: 10px;">
+          <div style="font-size: 0.8rem; color: var(--text-muted);">
+            💡 <b>Tip:</b> Multi-Line Windowing automatically pairs MRP, Net Qty, Dates, Address, and Taxes even when printed on separate lines.
+          </div>
+          <button type="submit" class="btn btn-primary" style="padding: 8px 20px; font-weight: 700; font-size: 0.9rem; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);">
+            ⚡ Re-Evaluate Statutory Rules Now
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Official Statutory Memorandum Export Section (End of Page) -->
+    <div class="card" style="background: linear-gradient(135deg, #0a2540 0%, #1e3a8a 100%); color: white; padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-top: 1.5rem; border-radius: var(--radius); box-shadow: var(--shadow-md);">
+      <div>
+        <div style="font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 800; opacity: 0.85;">
+          OFFICIAL STATUTORY DOCUMENTATION
+        </div>
+        <h3 style="font-size: 1.25rem; font-weight: 800; margin-top: 4px; color: white;">
+          Statutory Inspection Memorandum & Form II Notice (PDF)
+        </h3>
+        <p style="font-size: 0.85rem; opacity: 0.9; margin-top: 4px;">
+          Adheres to the official format prescribed for Legal Metrology Officers under Section 15 & Section 36(1) of The Legal Metrology Act, 2009.
+        </p>
+      </div>
+      <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+        <a href="/report/{{ scan.id }}/pdf" class="btn btn-success" target="_blank" style="padding: 10px 22px; font-size: 0.95rem; font-weight: 700; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);">
+          <span>📄 Export Official Inspection Memorandum (PDF)</span>
+        </a>
+        <a href="/" class="btn btn-outline" style="background: rgba(255, 255, 255, 0.15); color: white; border-color: rgba(255, 255, 255, 0.3);">
+          <span>+ Audit Next Commodity</span>
+        </a>
+      </div>
+    </div>
+
+
+
+  </div>
+
+  <footer>
+    Directorate of Legal Metrology & Consumer Protection • Packaging Compliance & Statutory Audit Studio
+  </footer>
+
+  <script>
+    function switchExhibit(index, label) {
+      const allImgs = document.querySelectorAll('.canvas-img');
+      allImgs.forEach(img => img.style.display = 'none');
+      const target = document.getElementById('exhibit-img-' + index);
+      if (target) target.style.display = 'block';
+
+      const allTabs = document.querySelectorAll('.canvas-tab-btn');
+      allTabs.forEach(tab => tab.classList.remove('active'));
+      event.target.classList.add('active');
+
+      document.getElementById('activeSideLabel').innerText = label;
+    }
+
+    function filterClauses(status) {
+      const cards = document.querySelectorAll('.clause-card');
+      cards.forEach(card => {
+        if (status === 'all' || card.getAttribute('data-status') === status) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+  </script>
+</body>
+</html>

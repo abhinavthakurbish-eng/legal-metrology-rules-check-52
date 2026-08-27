@@ -1,0 +1,112 @@
+{
+  "statutory_act": "The Legal Metrology Act, 2009 & Legal Metrology (Packaged Commodities) Rules, 2011 (as amended)",
+  "version": "3.0-enterprise-auditor",
+  "categories": [
+    "Food & Beverages",
+    "Cosmetics & Personal Care",
+    "Consumer Electronics",
+    "General FMCG & Household",
+    "Imported Packaged Goods"
+  ],
+  "rules": [
+    {
+      "rule_code": "LMPC-R6-1-E",
+      "rule_name": "Maximum Retail Price (MRP) & Tax Inclusivity",
+      "statutory_reference": "Rule 6(1)(e) of Legal Metrology (Packaged Commodities) Rules, 2011",
+      "penalty_clause": "Section 36(1) of Legal Metrology Act, 2009 - Fine up to ₹25,000 for 1st offence, ₹50,000 for 2nd",
+      "category": "Pricing & Taxation",
+      "mandatory": true,
+      "description": "Declaration of Maximum Retail Price (MRP) in Indian Rupees with mandatory tax statement (e.g., 'inclusive of all taxes' or 'incl. of all taxes').",
+      "applicable_categories": ["All"],
+      "weight": 20
+    },
+    {
+      "rule_code": "LMPC-R6-11",
+      "rule_name": "Unit Sale Price (USP) Declaration",
+      "statutory_reference": "Rule 6(11) of LMPC Rules, 2011 (Amended 2021/2022)",
+      "penalty_clause": "Section 36(1) of Legal Metrology Act, 2009",
+      "category": "Pricing & Taxation",
+      "mandatory": false,
+      "description": "Declaration of Unit Sale Price in Rs. per g/kg/ml/l/unit for pre-packaged commodities exceeding 100g/100ml/1kg.",
+      "applicable_categories": ["All"],
+      "weight": 10
+    },
+    {
+      "rule_code": "LMPC-R6-1-C",
+      "rule_name": "Net Quantity in Standard Metric Units",
+      "statutory_reference": "Rule 6(1)(c) read with Rule 11, 12, 13 of LMPC Rules, 2011",
+      "penalty_clause": "Section 36(1) & Section 36(2) of Legal Metrology Act, 2009",
+      "category": "Quantity & Measurement",
+      "mandatory": true,
+      "description": "Net weight, volume, or count declared in standardized metric units (g, kg, ml, l, N, U).",
+      "applicable_categories": ["All"],
+      "weight": 15
+    },
+    {
+      "rule_code": "LMPC-R6-1-A",
+      "rule_name": "Manufacturer / Packer / Importer Name & Address",
+      "statutory_reference": "Rule 6(1)(a) of Legal Metrology (Packaged Commodities) Rules, 2011",
+      "penalty_clause": "Section 36(1) of Legal Metrology Act, 2009",
+      "category": "Traceability & Identification",
+      "mandatory": true,
+      "description": "Complete name and physical postal address of the manufacturer, pre-packer, or importer with city/state/PIN code.",
+      "applicable_categories": ["All"],
+      "weight": 15
+    },
+    {
+      "rule_code": "LMPC-R6-1-D",
+      "rule_name": "Month and Year of Manufacture / Pre-packing",
+      "statutory_reference": "Rule 6(1)(d) of Legal Metrology (Packaged Commodities) Rules, 2011",
+      "penalty_clause": "Section 36(1) of Legal Metrology Act, 2009",
+      "category": "Date & Freshness",
+      "mandatory": true,
+      "description": "Declaration of month and year in which commodity is manufactured, packed, or imported (e.g. MM/YYYY or Month YYYY).",
+      "applicable_categories": ["All"],
+      "weight": 10
+    },
+    {
+      "rule_code": "LMPC-R6-1-F",
+      "rule_name": "Consumer Care / Redressal Contact Details",
+      "statutory_reference": "Rule 6(1)(f) of Legal Metrology (Packaged Commodities) Rules, 2011",
+      "penalty_clause": "Section 36(1) of Legal Metrology Act, 2009",
+      "category": "Consumer Protection",
+      "mandatory": true,
+      "description": "Designation/Name, physical address, phone/toll-free number, and email ID for consumer grievance redressal.",
+      "applicable_categories": ["All"],
+      "weight": 10
+    },
+    {
+      "rule_code": "LMPC-R6-10",
+      "rule_name": "Country of Origin Declaration",
+      "statutory_reference": "Rule 6(10) of Legal Metrology (Packaged Commodities) Rules, 2011 (Amended 2017)",
+      "penalty_clause": "Section 36(1) of Legal Metrology Act, 2009",
+      "category": "Trade & Origin",
+      "mandatory": true,
+      "description": "Explicit declaration of the Country of Origin or Country of Manufacture for all packaged commodities.",
+      "applicable_categories": ["All"],
+      "weight": 10
+    },
+    {
+      "rule_code": "LMPC-R9-EXP",
+      "rule_name": "Best Before / Expiry / Shelf Life Declaration",
+      "statutory_reference": "Rule 9 of LMPC Rules, 2011 read with FSSAI Regulations",
+      "penalty_clause": "Section 36(1) of Legal Metrology Act, 2009",
+      "category": "Date & Freshness",
+      "mandatory": false,
+      "description": "Best before, expiry date, or shelf life duration declaration for consumable/perishable goods.",
+      "applicable_categories": ["Food & Beverages", "Cosmetics & Personal Care"],
+      "weight": 5
+    },
+    {
+      "rule_code": "LMPC-BATCH",
+      "rule_name": "Batch / Lot / Identification Number",
+      "statutory_reference": "Rule 6(1) Traceability Provision of LMPC Rules, 2011",
+      "penalty_clause": "Section 36(1) of Legal Metrology Act, 2009",
+      "category": "Traceability & Identification",
+      "mandatory": true,
+      "description": "Batch, lot, or code number for production identification and statutory recall traceability.",
+      "applicable_categories": ["All"],
+      "weight": 5
+    }
+  ]
+}

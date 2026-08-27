@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Statutory Audit Trail & History - Legal Metrology Division</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="/" class="nav-brand">
+      <span class="emblem">⚖️</span>
+      <div>
+        <div class="nav-title">DIRECTORATE OF LEGAL METROLOGY</div>
+        <div class="nav-subtitle">Packaged Commodities Compliance & Automated Inspection Division</div>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="/" class="nav-link">New Inspection</a>
+      <a href="/dashboard" class="nav-link active">Audit Records</a>
+      <a href="/rules" class="nav-link">Statutory Rules (LMPC)</a>
+    </div>
+  </nav>
+
+  <div class="container">
+
+    <!-- Header & Search Filter -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title">Enforcement Audit Trail & Case Register</h2>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">
+            Search and review all historical package inspections, notices, and clearance records.
+          </p>
+        </div>
+        <a href="/" class="btn btn-primary">
+          <span>+ New Inspection</span>
+        </a>
+      </div>
+
+      <form action="/dashboard" method="GET" style="display: flex; gap: 12px; flex-wrap: wrap;">
+        <input 
+          type="text" 
+          name="q" 
+          placeholder="Search by Product Name or Case Reference (e.g. Parle, LM-INSP-2026)..." 
+          value="{{ search_query }}"
+          style="flex: 1; min-width: 260px; padding: 0.65rem 0.85rem; border-radius: 6px; border: 1px solid var(--border); font-size: 0.9rem;"
+        >
+        <select 
+          name="status" 
+          style="padding: 0.65rem 0.85rem; border-radius: 6px; border: 1px solid var(--border); font-size: 0.9rem; background: white;"
+        >
+          <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All Enforcement Statuses</option>
+          <option value="COMPLIANT" {% if status_filter == 'COMPLIANT' %}selected{% endif %}>Cleared (Compliant)</option>
+          <option value="PARTIAL_COMPLIANCE" {% if status_filter == 'PARTIAL_COMPLIANCE' %}selected{% endif %}>Partial / Notice</option>
+          <option value="NON_COMPLIANT" {% if status_filter == 'NON_COMPLIANT' %}selected{% endif %}>Violations (Deficient)</option>
+        </select>
+        <button type="submit" class="btn btn-primary">
+          <span>Filter Records</span>
+        </button>
+        {% if search_query or status_filter != 'all' %}
+          <a href="/dashboard" class="btn btn-outline">Clear</a>
+        {% endif %}
+      </form>
+    </div>
+
+    <!-- Scans Table -->
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Case Ref #</th>
+              <th>Product / Commodity</th>
+              <th>Inspection Date</th>
+              <th>Compliance Score</th>
+              <th>Enforcement Finding</th>
+              <th style="text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if scans %}
+              {% for scan in scans %}
+              <tr>
+                <td><b>{{ scan.reference_no or 'LM-INSP-2026-000' + scan.id|string }}</b></td>
+                <td>
+                  <div style="font-weight: 700; color: var(--primary);">{{ scan.product_name }}</div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">
+                    {{ scan.image_filenames|length }} angle photo(s) audited
+                  </div>
+                </td>
+                <td>{{ scan.created_at }}</td>
+                <td>
+                  <div style="font-weight: 800; font-size: 1rem; color: var(--primary);">
+                    {{ scan.compliance_score }}%
+                  </div>
+                </td>
+                <td>
+                  {% if scan.overall_status == 'COMPLIANT' %}
+                    <span class="badge badge-success">✓ CLEARED</span>
+                  {% elif scan.overall_status == 'PARTIAL_COMPLIANCE' %}
+                    <span class="badge badge-warning">⚠ NOTICE ADVISORY</span>
+                  {% else %}
+                    <span class="badge badge-danger">✗ VIOLATION DETECTED</span>
+                  {% endif %}
+                </td>
+                <td style="text-align: right;">
+                  <a href="/report/{{ scan.id }}" class="btn btn-outline" style="padding: 4px 10px; font-size: 0.8rem;">
+                    View Memo
+                  </a>
+                  <a href="/report/{{ scan.id }}/pdf" class="btn btn-success" style="padding: 4px 10px; font-size: 0.8rem;" target="_blank">
+                    PDF
+                  </a>
+                </td>
+              </tr>
+              {% endfor %}
+            {% else %}
+              <tr>
+                <td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                  No inspection records found matching the query criteria.
+                </td>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    Directorate of Legal Metrology & Consumer Protection • Statutory Audit & Enforcement Prototype
+  </footer>
+
+</body>
+</html>

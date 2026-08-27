@@ -1,7 +1,3 @@
-# OCR Package
-from .extractor import (
-    extract_text_and_boxes_multi,
-    extract_single_image,
-    extract_single_image_fast,
-    normalize_ocr_text
-)
+# Reports Package
+from .generator import generate_pdf_report
+from .annotate import create_annotated_image

@@ -11,7 +11,10 @@ import os
 from datetime import datetime
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DB_PATH = os.path.join(BASE_DIR, "database", "compliance.db")
+if os.environ.get("VERCEL") or not os.access(BASE_DIR, os.W_OK):
+    DB_PATH = "/tmp/compliance.db"
+else:
+    DB_PATH = os.path.join(BASE_DIR, "database", "compliance.db")
 
 
 def get_connection():

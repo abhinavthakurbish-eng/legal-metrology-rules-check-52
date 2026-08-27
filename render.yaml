@@ -1,0 +1,13 @@
+# Render Blueprint Specification
+services:
+  - type: web
+    name: legal-metrology-inspector
+    env: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: PYTHONUNBUFFERED
+        value: "1"

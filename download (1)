@@ -1,0 +1,30 @@
+# Python & System Ignore
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# SQLite Database & Storage
+database/*.db
+database/*.sqlite3
+!database/__init__.py
+
+# Ephemeral Uploads & Generated Reports
+uploads/*
+!uploads/.gitkeep
+generated_reports/*
+!generated_reports/.gitkeep
+static/annotated/*
+!static/annotated/.gitkeep
+
+# IDE & OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
